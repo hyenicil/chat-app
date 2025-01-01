@@ -1,3 +1,25 @@
 spring:
   application:
     name: chat-app
+
+  jpa:
+    database: mysql
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/test
+    username: mysql
+    password: root
+
+
+jwt:
+  key: "Base64EncodedSecretKeyForJWT"
+  expiration: 120000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

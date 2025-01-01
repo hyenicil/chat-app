@@ -1,1 +1,46 @@
 27/12/2024 -> Proje Başlatıldı.
+
+########################################################################################################################
+public class User {
+
+    // Temel Kullanıcı Bilgileri
+    private Long id; // Kullanıcının benzersiz ID'si
+    private String username; // Kullanıcı adı (benzersiz olmalı)
+    private String phoneNumber; // Telefon numarası (uluslararası formatta)
+    private String email; // (Opsiyonel) E-posta adresi
+    private String profilePictureUrl; // Profil fotoğrafı URL'si
+
+    // Gizlilik Ayarları
+    private boolean isPhoneNumberVisible; // Telefon numarası görünürlüğü
+    private boolean isLastSeenVisible; // Son görülme durumu görünürlüğü
+    private boolean isProfilePictureVisible; // Profil resmi görünürlüğü
+
+    // Durum ve Aktivite
+    private String statusMessage; // Durum mesajı ("Meşgul", "Uygun", vb.)
+    private LocalDateTime lastSeen; // Son görülme zamanı
+    private boolean isOnline; // Kullanıcının o an çevrimiçi olup olmadığını belirtir
+
+    // Güvenlik
+    private String passwordHash; // Parola için hash (örn. BCrypt)
+    private String twoFactorAuthCode; // 2FA doğrulama kodu (Opsiyonel)
+    private LocalDateTime twoFactorAuthExpiry; // 2FA kodunun geçerlilik süresi
+
+    // Kullanıcı İzinleri ve Rolleri
+    private List<String> roles; // Kullanıcı rolleri ("ADMIN", "USER", vb.)
+    private boolean isBlocked; // Kullanıcının engellenip engellenmediği
+    private boolean isDeleted; // Hesabın silinmiş olup olmadığı
+
+    // Tarihler
+    private LocalDateTime createdAt; // Hesap oluşturulma tarihi
+    private LocalDateTime updatedAt; // Son güncelleme tarihi
+
+    // Ek Alanlar
+    private List<Long> contactIds; // Kullanıcının kişi listesi (ID'ler)
+    private List<Long> blockedUserIds; // Engellenen kullanıcıların listesi
+    private String languagePreference; // Kullanıcının tercih ettiği dil
+    private boolean isNotificationEnabled; // Bildirimlerin açık/kapalı durumu
+
+    // Constructor, Getter ve Setter'lar
+    // equals, hashCode, toString gibi metotlar (Lombok ile otomatik yapılabilir)
+}
+########################################################################################################################

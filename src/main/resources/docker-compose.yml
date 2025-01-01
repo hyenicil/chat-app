@@ -1,0 +1,25 @@
+version: '3.8'
+
+
+services:
+  mysql:
+    image: mysql:8.0 # MySQL'in 8.0 sürümünü kullanıyoruz
+    container_name: mysql-container # Konteyner adı
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword # Root kullanıcısı için şifre
+      MYSQL_DATABASE: test # Başlangıçta oluşturulacak veritabanı
+      MYSQL_USER: mysql # Normal bir kullanıcı adı
+      MYSQL_PASSWORD: root # Normal kullanıcı için parola
+    ports:
+      - "3306:3306" # 3306 portunu host'ta 3306 portuna yönlendir
+    volumes:
+      - mysql-data:/var/lib/mysql # Veritabanı verilerini kalıcı hale getirmek için volume kullanıyoruz
+    networks:
+      - mysql-network
+
+volumes:
+  mysql-data: # Veritabanı verilerini saklamak için bir volume oluşturuyoruz
+
+networks:
+  mysql-network: # MySQL konteyneri için bir ağ oluşturuyoruz
+    driver: bridge
