@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 public record UserAuthDtoResponse(
-        Map<String, Object> authorities,
+        Set<Role> authorities,
         String username,
         String email
 ) {

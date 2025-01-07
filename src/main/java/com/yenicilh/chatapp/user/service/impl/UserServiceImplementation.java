@@ -43,9 +43,8 @@ public class UserServiceImplementation implements UserService {
                 user.setPassword(passwordEncoder.encode(user.getPassword()));
                 user.setAuthorities(Set.of(Role.ROLE_USER));
                 userRepository.save(user);
-                Map<String, Object> claims = new HashMap<>();
-                claims.put("role", user.getAuthorities());
-                claims.put("email", user.getEmail());
+                Set<Role> claims = new HashSet<>();
+                user.getAuthorities().forEach(authority -> claims.add(Role.valueOf(authority.getAuthority())));
                 return new UserAuthDtoResponse(claims, user.getUsername(), user.getEmail());
             }
         } catch (UserException e) {
@@ -61,12 +60,15 @@ public class UserServiceImplementation implements UserService {
 
         if(optionalUser.isPresent())
             return optionalUser.get();
-        throw new UserException("User not found with email: " + email);
+        return null;
+        //throw new UserException("User not found with email: " + email);
     }
 
     @Override
-    public User findUserProfile(String jwt) {
-        return null;
+    public Long findUserProfile(String jwt) {
+        String userName = jwtService.extractUser(jwt);
+        Optional<User> optionalUser = userRepository.findByUsername(userName);
+        return optionalUser.isPresent() ? optionalUser.get().getId() : null;
     }
 
     @Override
@@ -76,7 +78,6 @@ public class UserServiceImplementation implements UserService {
         if(Objects.nonNull(request.email()) && Objects.nonNull(request.username())) {
             user.setFirstName(request.firstName());
             user.setLastName(request.lastName());
-            user.setPhoneNumber(request.phoneNumber());
             user.setEmail(request.profilePictureUrl());
             userRepository.save(user);
             Map<String, Object> claims = new HashMap<>();

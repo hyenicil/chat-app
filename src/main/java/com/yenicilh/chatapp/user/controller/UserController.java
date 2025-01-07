@@ -22,8 +22,8 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<User> getUserProfile(@RequestHeader("Authorization") String token) {
-        User user = userService.findUserProfile(token);
+    public ResponseEntity<Long> getUserProfile(@RequestHeader("Authorization") String token) {
+        Long user = userService.findUserProfile(token);
         return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
     }
 

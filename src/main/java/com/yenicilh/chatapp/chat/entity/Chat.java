@@ -18,10 +18,14 @@ public class Chat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    private Long id;
 
-    @JoinColumn(nullable = false, name = "admins")
     @ManyToMany
+    @JoinTable(
+            name = "chat_admins",
+            joinColumns = @JoinColumn(name = "chat_id"),
+            inverseJoinColumns = @JoinColumn(name = "admin_id")
+    )
     private Set<User> admins = new HashSet<>();
 
     @Column(name = "name")
@@ -38,18 +42,31 @@ public class Chat {
     private User createdBy;
 
     @ManyToMany
-    @JoinColumn(name = "members")
+    @JoinTable(
+            name = "chat_users",
+            joinColumns = @JoinColumn(name = "chat_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private Set<User> users = new HashSet<>();
 
-    @OneToMany
-    @JoinColumn(name ="messages", nullable = false)
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Message> messages = new ArrayList<>();
 
-    public Integer getId() {
+    public Chat(Set<User> users, String s, String s1) {
+        setUsers(users);
+        setName(s);
+        setChat_image(s1);
+    }
+
+    public Chat() {
+
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -108,6 +125,5 @@ public class Chat {
     public void setMessages(List<Message> messages) {
         this.messages = messages;
     }
-
 
 }

@@ -27,7 +27,6 @@ public class User implements UserDetails {
     private String lastName;
     private String username;
     private String email;
-    private String phoneNumber;
     private String profilePictureUrl;
     private String password;
 
@@ -75,14 +74,6 @@ public class User implements UserDetails {
         this.email = email;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
     public String getProfilePictureUrl() {
         return profilePictureUrl;
     }
@@ -123,7 +114,6 @@ public class User implements UserDetails {
                 Objects.equals(lastName, user.lastName) &&
                 Objects.equals(username, user.username) &&
                 Objects.equals(email, user.email) &&
-                Objects.equals(phoneNumber, user.phoneNumber) &&
                 Objects.equals(profilePictureUrl, user.profilePictureUrl) &&
                 Objects.equals(password, user.password) &&
                 Objects.equals(authorities, user.authorities);
@@ -131,6 +121,6 @@ public class User implements UserDetails {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, username, email, phoneNumber, profilePictureUrl, password, authorities);
+        return Objects.hash(id, firstName, lastName, username, email, profilePictureUrl, password, authorities);
     }
 }

@@ -12,7 +12,7 @@ import java.util.List;
 public interface UserService {
 
     User findUserByEmail(String email) throws UserException;
-    User findUserProfile(String jwt);
+    Long findUserProfile(String jwt);
     User updateUser(Long id, UpdateUserDtoRequest request) throws UserException;
     List<User> searchUser(String query);
     UserAuthDtoResponse save(User user);

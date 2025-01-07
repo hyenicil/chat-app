@@ -16,6 +16,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.List;
 
 /**
  * Security configuration class for handling authentication and authorization.
@@ -43,16 +46,26 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless API
+                .cors(cors -> cors  // Add CORS configuration
+                        .configurationSource(request -> {
+                            CorsConfiguration config = new CorsConfiguration();
+                            config.setAllowedOrigins(List.of("http://localhost:3000")); // Or your frontend URL
+                            config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+                            config.setAllowedHeaders(List.of("*")); // Or specific headers
+                            config.setAllowCredentials(true);
+                            return config;
+                        })
+                )
+                .csrf(csrf -> csrf.disable()) // CSRF devre dışı
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/home/**", "/auth/**", "/auth/generateToken/**","/swagger-ui/**", ).permitAll() // Public endpoints
-                        .requestMatchers("/auth/user").hasRole("USER") // Protected endpoint for USER role
-                        .requestMatchers("/auth/admin").hasRole("ADMIN") // Protected endpoint for ADMIN role
-                        .anyRequest().authenticated() // All other requests require authentication
+                        .requestMatchers("/auth/**", "/auth/generateToken/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/auth/user").hasRole("USER") // USER role
+                        .requestMatchers("/auth/admin").hasRole("ADMIN") // ADMIN role
+                        .anyRequest().authenticated() // Diğer tüm endpoint'ler için kimlik doğrulama gerekli
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless session
-                .authenticationProvider(authenticationProvider()) // Custom authentication provider
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class) // JWT authentication filter
+                .authenticationProvider(authenticationProvider()) // Özelleştirilmiş doğrulama
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class) // JWT doğrulama filtresi
                 .build();
     }
 

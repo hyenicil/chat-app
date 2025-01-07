@@ -59,14 +59,14 @@ public class ChatController {
         return new ResponseEntity<List<Chat>>(chats,HttpStatus.OK);
     }
 
-    @PutMapping("/{id}/add/{userId}")
+    @PutMapping("/{id}/add-user/{userId}")
     public ResponseEntity<Chat> addUserToChat(@PathVariable Long id, @PathVariable Long userId, @RequestHeader("Authorization") String jwt) throws UserException, ChatException {
         User admin = findUserProfile(jwt);
         Chat chat = chatService.addUserToGroup( id,admin.getId(), userId);
         return new ResponseEntity<Chat>(chat, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}/add/{userId}")
+    @PutMapping("/{id}/remove-user/{userId}")
     public ResponseEntity<Chat> removeUserToChat(@PathVariable Long id, @PathVariable Long userId, @RequestHeader("Authorization") String jwt) throws UserException, ChatException {
         User admin = findUserProfile(jwt);
         Chat chat = chatService.removeFromGroup(id,admin.getId(), userId);
@@ -81,11 +81,12 @@ public class ChatController {
         return new ResponseEntity<>(apiResponse,HttpStatus.OK);
     }
 
+    /*Burasi duzeltilecek*/
     private User findUserProfile(String jwt) throws UserException {
-        User user = userService.findUserProfile(jwt);
+        Long user = userService.findUserProfile(jwt);
 
         if(nonNull(user)) {
-            return user;
+            return userService.findById(user);
         }
         throw new UserException("User not found");
     }

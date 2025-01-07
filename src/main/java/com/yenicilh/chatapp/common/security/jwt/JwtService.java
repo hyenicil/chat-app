@@ -1,5 +1,6 @@
 package com.yenicilh.chatapp.common.security.jwt;
 
+import com.yenicilh.chatapp.user.entity.enums.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -8,9 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service class for managing JWT operations such as token creation, validation, and parsing.
@@ -31,17 +31,19 @@ public class JwtService {
      * @return A signed JWT token.
      */
     public String generateToken(String userName) {
-        return generateToken(new HashMap<>(), userName);
+        return generateToken(new HashSet<>(), userName);
     }
 
     /**
      * Generates a JWT token with specified claims and username.
      *
-     * @param claims   Custom claims to include in the token.
+     * @param roles   Custom claims to include in the token.
      * @param userName The username to include in the token.
      * @return A signed JWT token.
      */
-    public String generateToken(Map<String, Object> claims, String userName) {
+    public String generateToken(Set<Role> roles, String userName) {
+        Map<String, Object> claims = roles.stream()
+                .collect(Collectors.toMap(Role::name, role -> role.name()));
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userName)

@@ -7,6 +7,7 @@ import com.yenicilh.chatapp.auth.service.AuthService;
 import com.yenicilh.chatapp.common.security.jwt.JwtService;
 import com.yenicilh.chatapp.user.dto.response.UserAuthDtoResponse;
 import com.yenicilh.chatapp.user.entity.User;
+import com.yenicilh.chatapp.user.entity.enums.Role;
 import com.yenicilh.chatapp.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,7 +16,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 public class AuthServiceImplementation implements AuthService {
@@ -46,8 +49,9 @@ public class AuthServiceImplementation implements AuthService {
                     new UsernamePasswordAuthenticationToken(request.email(), request.password())
             );
             User user = (User) authentication.getPrincipal();
-            Map<String, Object> claims = new HashMap<>();
-            claims.put("role", user.getAuthorities().stream().findFirst().orElse(null));
+            Set<Role> claims = new HashSet<>();
+            user.getAuthorities().forEach(authority -> claims.add(Role.valueOf(authority.getAuthority())));
+
 
             return generateToken(claims, user.getUsername());
         } catch (Exception e) {
@@ -56,7 +60,7 @@ public class AuthServiceImplementation implements AuthService {
     }
 
 
-    private String generateToken(Map<String, Object> authorities, String username) {
+    private String generateToken(Set<Role> authorities, String username) {
         return jwtService.generateToken(authorities, username);
     }
 
