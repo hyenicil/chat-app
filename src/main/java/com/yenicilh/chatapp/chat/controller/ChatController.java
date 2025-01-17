@@ -7,7 +7,6 @@ import com.yenicilh.chatapp.chat.service.ChatService;
 import com.yenicilh.chatapp.common.dto.response.ApiResponse;
 import com.yenicilh.chatapp.common.exception.chat.ChatException;
 import com.yenicilh.chatapp.common.exception.user.UserException;
-import com.yenicilh.chatapp.user.dto.response.UserDtoResponse;
 import com.yenicilh.chatapp.user.entity.User;
 import com.yenicilh.chatapp.user.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -34,53 +33,59 @@ public class ChatController {
 
     @PostMapping("/single")
     public ResponseEntity<Chat> createChat(@RequestBody ChatDtoRequest request, @RequestHeader("Authorization") String jwt) throws UserException {
-        Chat chat = chatService.createChat(findUserProfile(jwt), request.userId());
+        User admin = findUserProfile(jwt);
+        Chat chat = chatService.createChat(admin.getId(), request.userId());
         return new ResponseEntity<Chat>(chat, HttpStatus.CREATED);
     }
 
     @PostMapping("/groups")
     public ResponseEntity<Chat> createChatGroup(@RequestBody GroupChatDtoRequest request, @RequestHeader("Authorization") String jwt) throws UserException {
-        Chat chat = chatService.createGroup(request, findUserProfile(jwt));
+        User admin = findUserProfile(jwt);
+        Chat chat = chatService.createGroup(request, admin.getId());
         return new ResponseEntity<Chat>(chat, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Chat> getChat(@PathVariable Long id,@RequestHeader("Authorization") String jwt) throws UserException, ChatException {
+        User admin = findUserProfile(jwt);
         Chat chat = chatService.findChatById(id);
         return new ResponseEntity<Chat>(chat,HttpStatus.OK);
     }
 
     @GetMapping("/user")
     public ResponseEntity<List<Chat>> getChatByUser(@RequestHeader("Authorization") String jwt) throws UserException, ChatException {
-        List<Chat> chats = chatService.findAllChatBySourceId(findUserProfile(jwt));
+        User user = findUserProfile(jwt);
+        List<Chat> chats = chatService.findAllChatBySourceId(user.getId());
         return new ResponseEntity<List<Chat>>(chats,HttpStatus.OK);
     }
 
-    @PutMapping("/{id}/add-user/{userId}")
+    @PutMapping("/{id}/add/{userId}")
     public ResponseEntity<Chat> addUserToChat(@PathVariable Long id, @PathVariable Long userId, @RequestHeader("Authorization") String jwt) throws UserException, ChatException {
-        Chat chat = chatService.addUserToGroup( id, findUserProfile(jwt), userId);
+        User admin = findUserProfile(jwt);
+        Chat chat = chatService.addUserToGroup( id,admin.getId(), userId);
         return new ResponseEntity<Chat>(chat, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}/remove-user/{userId}")
+    @PutMapping("/{id}/add/{userId}")
     public ResponseEntity<Chat> removeUserToChat(@PathVariable Long id, @PathVariable Long userId, @RequestHeader("Authorization") String jwt) throws UserException, ChatException {
-        Chat chat = chatService.removeFromGroup(id,findUserProfile(jwt), userId);
+        User admin = findUserProfile(jwt);
+        Chat chat = chatService.removeFromGroup(id,admin.getId(), userId);
         return new ResponseEntity<Chat>(chat, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> delete(@PathVariable Long id, @RequestHeader("Authorization") String jwt) throws UserException, ChatException {
-        Long userId = findUserProfile(jwt);
-        chatService.deleteChat(id, findUserProfile(jwt));
+        User admin = findUserProfile(jwt);
+        chatService.deleteChat(id, admin.getId());
         ApiResponse apiResponse = new ApiResponse("Chat is deleted.", true);
         return new ResponseEntity<>(apiResponse,HttpStatus.OK);
     }
 
-    private Long findUserProfile(String jwt) throws UserException {
-        UserDtoResponse user = userService.findUserProfile(jwt);
+    private User findUserProfile(String jwt) throws UserException {
+        User user = userService.findUserProfile(jwt);
 
         if(nonNull(user)) {
-            return userService.findByEmail(user.email());
+            return user;
         }
         throw new UserException("User not found");
     }

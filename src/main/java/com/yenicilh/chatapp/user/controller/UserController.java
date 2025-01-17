@@ -1,9 +1,7 @@
 package com.yenicilh.chatapp.user.controller;
 
 import com.yenicilh.chatapp.common.dto.response.ApiResponse;
-import com.yenicilh.chatapp.common.exception.user.UserException;
 import com.yenicilh.chatapp.user.dto.request.UpdateUserDtoRequest;
-import com.yenicilh.chatapp.user.dto.response.UserDtoResponse;
 import com.yenicilh.chatapp.user.entity.User;
 import com.yenicilh.chatapp.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController()
-@RequestMapping("/users")
+@RequestMapping("/chat-app/users")
 public class UserController {
 
     private final UserService userService;
@@ -24,8 +22,8 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<UserDtoResponse> getUserProfile(@RequestHeader("Authorization") String token) throws UserException {
-        UserDtoResponse user = userService.findUserProfile(token);
+    public ResponseEntity<User> getUserProfile(@RequestHeader("Authorization") String token) {
+        User user = userService.findUserProfile(token);
         return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
     }
 
@@ -37,6 +35,7 @@ public class UserController {
 
     @PutMapping("/update")
     public ResponseEntity<ApiResponse> updateUser(@RequestBody UpdateUserDtoRequest request, @RequestHeader("Authorization") String token) {
+
         ApiResponse apiResponse = new ApiResponse("User updated successfully", true);
         return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.ACCEPTED);
     }

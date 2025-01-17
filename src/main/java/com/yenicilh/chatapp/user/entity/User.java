@@ -27,6 +27,7 @@ public class User implements UserDetails {
     private String lastName;
     private String username;
     private String email;
+    private String phoneNumber;
     private String profilePictureUrl;
     private String password;
 
@@ -62,10 +63,6 @@ public class User implements UserDetails {
         this.lastName = lastName;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
     public void setUsername(String username) {
         this.username = username;
     }
@@ -78,6 +75,14 @@ public class User implements UserDetails {
         this.email = email;
     }
 
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
     public String getProfilePictureUrl() {
         return profilePictureUrl;
     }
@@ -86,19 +91,46 @@ public class User implements UserDetails {
         this.profilePictureUrl = profilePictureUrl;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public void setPassword(String password) {
         this.password = password;
     }
 
-    public Set<Role> getAuthorities() {
-        return authorities;
-    }
-
     public void setAuthorities(Set<Role> authorities) {
         this.authorities = authorities;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public String getPassword() {
+        return "";
+    }
+
+    @Override
+    public String getUsername() {
+        return "";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id) &&
+                Objects.equals(firstName, user.firstName) &&
+                Objects.equals(lastName, user.lastName) &&
+                Objects.equals(username, user.username) &&
+                Objects.equals(email, user.email) &&
+                Objects.equals(phoneNumber, user.phoneNumber) &&
+                Objects.equals(profilePictureUrl, user.profilePictureUrl) &&
+                Objects.equals(password, user.password) &&
+                Objects.equals(authorities, user.authorities);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, firstName, lastName, username, email, phoneNumber, profilePictureUrl, password, authorities);
     }
 }

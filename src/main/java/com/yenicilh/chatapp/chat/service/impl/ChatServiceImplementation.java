@@ -21,10 +21,12 @@ import static java.util.Objects.nonNull;
 public class ChatServiceImplementation implements ChatService {
 
     private final ChatRepository chatRepository;
+    private final ChatDtoMapper chatDtoMapper;
     private final UserService userService;
 
-    public ChatServiceImplementation(ChatRepository chatRepository, UserService userService) {
+    public ChatServiceImplementation(ChatRepository chatRepository, ChatDtoMapper chatDtoMapper, UserService userService) {
         this.chatRepository = chatRepository;
+        this.chatDtoMapper = chatDtoMapper;
         this.userService = userService;
     }
 
@@ -67,7 +69,7 @@ public class ChatServiceImplementation implements ChatService {
     @Override
     public Chat createGroup(GroupChatDtoRequest request, Long sourceId) throws UserException {
 
-        Chat tempChat = new Chat(request.users(), request.chat_image(), request.chat_name());
+        Chat tempChat = chatDtoMapper.toEntity(request);
         Chat group = new Chat();
         group.setGroup(true);
         group.setChat_image(tempChat.getChat_image());

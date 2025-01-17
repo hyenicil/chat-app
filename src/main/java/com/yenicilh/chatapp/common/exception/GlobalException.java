@@ -14,7 +14,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.time.LocalDateTime;
 
-//@RestControllerAdvice
+@RestControllerAdvice
 public class GlobalException {
 
     @ExceptionHandler(UserException.class)
