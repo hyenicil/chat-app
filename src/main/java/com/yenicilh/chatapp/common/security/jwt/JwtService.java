@@ -1,72 +1,110 @@
 package com.yenicilh.chatapp.common.security.jwt;
 
+import com.yenicilh.chatapp.user.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.ResourceTransactionManager;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Service class for managing JWT operations such as token creation, validation, and parsing.
+ * Service for managing JWT operations: creation, validation, and parsing.
  */
 @Service
 public class JwtService {
 
     @Value("${jwt.key}")
-    private String secretKey;
+    private String key;
 
     @Value("${jwt.expiration}")
-    private long jwtExpirationMillis;
+    private long expiration;
 
     /**
-     * Generates a JWT token with custom claims.
+     * Generates a JWT token for a given username.
      *
-     * @param userName The username to include in the token.
+     * @param username The username for which the token is generated.
      * @return A signed JWT token.
      */
-    public String generateToken(String userName) {
-        return generateToken(new HashMap<>(), userName);
+    public String generateToken(String username) {
+        return generateToken(new HashMap<>(), username);
     }
 
     /**
-     * Generates a JWT token with specified claims and username.
+     * Generates a JWT token with custom claims and username.
      *
-     * @param claims   Custom claims to include in the token.
-     * @param userName The username to include in the token.
+     * @param claims Custom claims to include in the token.
+     * @param username The username for which the token is generated.
      * @return A signed JWT token.
      */
-    public String generateToken(Map<String, Object> claims, String userName) {
+    public String generateToken(Map<String,Object> claims, String username) {
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(userName)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMillis))
-                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     /**
-     * Validates a given JWT token against the provided UserDetails.
+     * Generates a JWT token based on authentication details.
      *
-     * @param token       The JWT token to validate.
-     * @param userDetails The UserDetails to validate against.
-     * @return True if the token is valid, false otherwise.
+     * @param authentication Authentication object.
+     * @return A signed JWT token.
      */
-    public Boolean validateToken(String token, UserDetails userDetails) {
+    public String generateToken(Authentication authentication) {
+        return generateToken(authentication.getName());
+    }
+
+    /**
+     * Generates a JWT token for a given User object.
+     *
+     * @param user The User object containing the user's information.
+     * @return A signed JWT token.
+     */
+    public String generateToken(User user) {
+        Map<String, Object> claims = new HashMap<>();
+
+        claims.put("id", user.getId());
+        claims.put("firstName", user.getFirstName());
+        claims.put("lastName", user.getLastName());
+        claims.put("username", user.getUsername());
+        claims.put("email", user.getEmail());
+        claims.put("roles", user.getAuthorities());
+        claims.put("profilePictureUrl", user.getProfilePictureUrl());
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(user.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    /**
+     * Validates a JWT token agains the provided UserDetails.
+     *
+     * @param token       The JWT token.
+     * @param userDetails The UserDetails for validation.
+     * @return True if valid, otherwise false.
+     */
+    public boolean validateToken(String token, UserDetails userDetails) {
         try {
-            final String username = extractUser(token);
-            final Date expirationDate = extractExpiration(token);
-            return userDetails.getUsername().equals(username) && !expirationDate.before(new Date());
+            String username = extractUsername(token);
+            return userDetails.getUsername().equals(username) && !isTokenExpired(token);
         } catch (JwtException | IllegalArgumentException e) {
-            // Log the exception for debugging purposes (e.g., token tampering, expired token)
-            System.err.println("JWT validation error: " + e.getMessage());
-            return false;
+        return false;
         }
     }
 
@@ -74,53 +112,74 @@ public class JwtService {
      * Extracts the username from the JWT token.
      *
      * @param token The JWT token.
-     * @return The username contained in the token.
+     * @return The username
      */
-    public String extractUser(String token) {
-        return extractClaims(token).getSubject();
+    public String extractUsername(String token) {
+        return extractAllClaims(token).getSubject();
     }
 
     /**
-     * Extracts the expiration date from the JWT token.
+     *Checks if the token is expired
      *
      * @param token The JWT token.
-     * @return The expiration date of the token.
+     * @return True if expired, otherwise false.
+     */
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    /**
+     * Extracts the expiration date from the Jwt token.
+     *
+     * @param token The JWT token.
+     * @return The expiration date.
      */
     public Date extractExpiration(String token) {
-        return extractClaims(token).getExpiration();
+        return extractAllClaims(token).getExpiration();
     }
 
     /**
      * Extracts all claims from the JWT token.
      *
      * @param token The JWT token.
-     * @return A Claims object containing all the claims.
+     * @return A Claims object containing all claims.
      */
-    public Claims extractClaims(String token) {
+    private Claims extractAllClaims(String token) {
         try {
             return Jwts.parser()
-                    .setSigningKey(getSignKey())
+                    .setSigningKey(getSigningKey())
                     .build()
-                    .parseClaimsJws(token)
+                    .parseClaimsJws(removeBearerPrefix(token))
                     .getBody();
-        } catch (ExpiredJwtException e) {
-            throw new RuntimeException("JWT token is expired");
+        }catch (ExpiredJwtException e) {
+            throw new IllegalStateException("Token has expired.", e);
         } catch (JwtException e) {
-            throw new RuntimeException("Invalid JWT token");
+            throw new IllegalStateException("Invalid token.", e);
         }
     }
 
     /**
-     * Generates a signing key from the secret key.
+     * Removes the 'Bearer ' prefix from the token if present.
+     *
+     * @param token The token with or without the prefix.
+     * @return The token without the prefix.
+     */
+    private String removeBearerPrefix(String token) {
+        if(token.startsWith("Bearer "))
+            return token.substring(7);
+        return token;
+    }
+
+    /**
+     * Retrives the signing key used for JWT operations.
      *
      * @return A Key object for signing the JWT.
      */
-    private Key getSignKey() {
-        try {
-            byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-            return Keys.hmacShaKeyFor(keyBytes);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid secret key configuration");
-        }
+    private Key getSigningKey() {
+       byte[] keyBytes = Decoders.BASE64.decode(key);
+       return Keys.hmacShaKeyFor(keyBytes);
     }
+
+
+
 }

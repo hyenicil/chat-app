@@ -1,6 +1,7 @@
 package com.yenicilh.chatapp.common.security.service;
 
 import com.yenicilh.chatapp.user.entity.User;
+import com.yenicilh.chatapp.user.entity.enums.Role;
 import com.yenicilh.chatapp.user.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -59,7 +60,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                         String.format("User with username '%s' not found", username)));
         UserBuilder builder = withUsername(username);
         builder.password(user.getPassword());
-        builder.roles(user.getAuthorities().toArray(new String[0]));
+        builder.roles(user.getAuthorities().stream().map(Role::name).toArray(String[]::new));
         return builder.build();
     }
 

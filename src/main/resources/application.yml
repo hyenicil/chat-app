@@ -17,9 +17,15 @@ spring:
 
 
 jwt:
-  key: "Base64EncodedSecretKeyForJWT"
-  expiration: 120000
+  key: Z3NlQmQzR2hkUjJZcG5IU2hmbU9FRFpCRkpDdHZSY05DUzFEbjJTRWtaTnZoRkQ0M0tJV0JFUkZGcz0=
+  expiration: 3600000
 
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+  logging:
+    level:
+      org:
+        springframework:
+          web: DEBUG
+        security: DEBUG
