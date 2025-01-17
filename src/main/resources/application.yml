@@ -17,8 +17,8 @@ spring:
 
 
 jwt:
-  key: jwC6B92XzKTOoYjDQ6f3zV4UnOUOYF5fFw/NbeEJ5fs=
-  expiration: 120000
+  key: Z3NlQmQzR2hkUjJZcG5IU2hmbU9FRFpCRkpDdHZSY05DUzFEbjJTRWtaTnZoRkQ0M0tJV0JFUkZGcz0=
+  expiration: 3600000
 
 springdoc:
   swagger-ui:

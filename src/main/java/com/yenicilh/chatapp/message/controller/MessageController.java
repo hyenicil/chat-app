@@ -1,6 +1,5 @@
 package com.yenicilh.chatapp.message.controller;
 
-import com.yenicilh.chatapp.chat.service.ChatService;
 import com.yenicilh.chatapp.common.dto.response.ApiResponse;
 import com.yenicilh.chatapp.common.exception.chat.ChatException;
 import com.yenicilh.chatapp.common.exception.message.MessageException;
@@ -8,7 +7,7 @@ import com.yenicilh.chatapp.common.exception.user.UserException;
 import com.yenicilh.chatapp.message.dto.MessageDtoRequest;
 import com.yenicilh.chatapp.message.entity.Message;
 import com.yenicilh.chatapp.message.service.MessageService;
-import com.yenicilh.chatapp.user.entity.User;
+import com.yenicilh.chatapp.user.dto.response.UserDtoResponse;
 import com.yenicilh.chatapp.user.service.UserService;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
@@ -25,7 +24,6 @@ public class MessageController {
 
     private final MessageService messageService;
     private final UserService userService;
-
 
     public MessageController(MessageService messageService, UserService userService) {
         this.messageService = messageService;
@@ -52,11 +50,10 @@ public class MessageController {
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
-
     private Long findUserProfile(String jwt) throws UserException {
-        Long user = userService.findUserProfile(jwt);
+        UserDtoResponse user = userService.findUserProfile(jwt);
         if(nonNull(user)) {
-            return user;
+            return userService.findByEmail(user.email());
         }
         throw new UserException("User not found");
     }
