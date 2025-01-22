@@ -15,7 +15,7 @@ public interface UserService {
     UserDtoResponse findUserByEmail(String email) throws UserException;
     UserDtoResponse findUserProfile(String jwt) throws UserException;
     User updateUser(Long id, UpdateUserDtoRequest request) throws UserException;
-    List<User> searchUser(String query);
+    List<UserDtoResponse> searchUser(String query);
     UserAuthDtoResponse save(User user) throws UserException;
     User findById(Long sourceId) throws UserException;
     Long findByEmail(String email) throws UserException;

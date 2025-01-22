@@ -32,7 +32,6 @@ public class UserServiceImplementation implements UserService {
         this.jwtService = jwtService;
     }
 
-
     @Override
     public UserDtoResponse findUserByEmail(String email) throws UserException {
         Optional<User> optionalUser = userRepository.findByEmail(email);
@@ -72,8 +71,10 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
-    public List<User> searchUser(String query) {
-        List<User> users = userRepository.searchUser(query);
+    public List<UserDtoResponse> searchUser(String query) {
+        List<UserDtoResponse> users = userDtoMapper.toResponseList(userRepository.searchUser(query));
+
+
         return users;    }
 
     @Override

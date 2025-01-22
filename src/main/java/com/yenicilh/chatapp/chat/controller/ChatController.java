@@ -31,7 +31,6 @@ public class ChatController {
         this.userService = userService;
     }
 
-
     @PostMapping("/single")
     public ResponseEntity<Chat> createChat(@RequestBody ChatDtoRequest request, @RequestHeader("Authorization") String jwt) throws UserException {
         Chat chat = chatService.createChat(findUserProfile(jwt), request.userId());
@@ -78,10 +77,8 @@ public class ChatController {
 
     private Long findUserProfile(String jwt) throws UserException {
         UserDtoResponse user = userService.findUserProfile(jwt);
-
-        if(nonNull(user)) {
+        if(nonNull(user))
             return userService.findByEmail(user.email());
-        }
         throw new UserException("User not found");
     }
 }

@@ -56,8 +56,6 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // CSRF devre dışı
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/auth/generateToken/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/auth/user", "/users/**").hasRole("USER")
-                        .requestMatchers("/auth/admin").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless session

@@ -29,10 +29,10 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
     }
 
-    @GetMapping("/{query}")
-    public ResponseEntity<List<User>> searchUser(@PathVariable("query") String query) {
-        List<User> users = userService.searchUser(query);
-        return new ResponseEntity<List<User>>(users, HttpStatus.OK);
+    @GetMapping("/{search}")
+    public ResponseEntity<List<UserDtoResponse>> searchUser(@RequestParam("name") String name) {
+        List<UserDtoResponse> users = userService.searchUser(name);
+        return new ResponseEntity<List<UserDtoResponse>>(users, HttpStatus.OK);
     }
 
     @PutMapping("/update")
@@ -40,7 +40,4 @@ public class UserController {
         ApiResponse apiResponse = new ApiResponse("User updated successfully", true);
         return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.ACCEPTED);
     }
-
-
-
 }
