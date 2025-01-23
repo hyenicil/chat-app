@@ -32,8 +32,8 @@ public class ChatController {
     }
 
     @PostMapping("/single")
-    public ResponseEntity<Chat> createChat(@RequestBody ChatDtoRequest request, @RequestHeader("Authorization") String jwt) throws UserException {
-        Chat chat = chatService.createChat(findUserProfile(jwt), request.userId());
+    public ResponseEntity<Chat> createChat(@RequestBody ChatDtoRequest request, @RequestHeader("Authorization") String token) throws UserException {
+        Chat chat = chatService.createChat(findUserProfile(token), request.userId());
         return new ResponseEntity<Chat>(chat, HttpStatus.CREATED);
     }
 
